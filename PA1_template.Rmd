@@ -9,12 +9,20 @@ output:
       
 ## Loading and preprocessing the data
 ```{r, echo=TRUE, results='hide'}
-read.csv("activity.csv")
+data <- read.csv("activity.csv")
 ```
 
 
 ## What is mean total number of steps taken per day?
+The ddply function is used to calculate the number of steps per day.
 
+```{r, echo=TRUE}
+library(plyr)
+sumSteps <- ddply(data, "date", summarise, sumSteps = sum(steps, na.rm=TRUE))
+sumSteps
+hist(sumSteps$sumSteps, breaks=10, col='lightblue', main='Histogram of the number of steps', xlab='Number of steps')
+summary(sumSteps$sumSteps)
+````
 
 
 ## What is the average daily activity pattern?
