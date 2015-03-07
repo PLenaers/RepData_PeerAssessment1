@@ -18,19 +18,47 @@ The ddply function is used to calculate the number of steps per day.
 
 ```{r, echo=TRUE}
 library(plyr)
-sumSteps <- ddply(data, "date", summarise, sumSteps = sum(steps, na.rm=TRUE))
-sumSteps
-hist(sumSteps$sumSteps, breaks=10, col='lightblue', main='Histogram of the number of steps', xlab='Number of steps')
-summary(sumSteps$sumSteps)
-````
+sumSteps <- ddply(data, "date", summarise, steps = sum(steps, na.rm=TRUE))
+hist(sumSteps$steps, breaks=10, col='lightblue', main='Histogram of the number of steps', xlim=c(0,25000), xlab='Number of steps')
+summary(sumSteps$steps)
+```
 
 
 ## What is the average daily activity pattern?
+First, the dates need to be converted into days of the week. A column with this information is added to the dataframe.
+Then the average per day is calculated using the ddply function. The results are plotted and the maximum is calculated.
 
-
+```{r, echo=TRUE}
+data$day <- factor(weekdays(as.Date(data$date)))
+data$day <- factor(data$day, levels= c("Sunday", "Monday", 
+    "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+avgByDay <- ddply(data, .(day, interval), summarise, steps = mean(steps, na.rm=TRUE))
+invisible(avgByDay[order(data$day), ])
+plot(avgByDay$steps, type='l', xlab='', ylab='Number of steps', xaxt="n")
+axis(1, at=c(0,288,576,864,1152,1440,1728,2016), labels=c(levels(avgByDay$day), ""))
+avgByDay[which.max(avgByDay$steps),]
+```
 
 ## Imputing missing values
+The missing values are replaced by the mean of that particular interval.
 
+```{r, echo=TRUE}
+sum(is.na(data$steps))
+idx <- is.na(data$steps)
+modData <- data
+for (i in 1:length(idx)) {
+      if (idx[i]) {
+            modData$steps[i] <- avgByDay$steps[which(avgByDay$day==data$day[i] & avgByDay$interval==data$interval[i])]
+      }
+}
+```
+Now, the same methods as before can be used to make a histogram and calculate the mean and median.
 
+```{r, echo=TRUE}
+sumStepsMod <- ddply(modData, "date", summarise, steps = sum(steps, na.rm=TRUE))
+hist(sumStepsMod$steps, breaks=10, col='lightblue', main='Histogram of the number of steps', xlim=c(0,25000), xlab='Number of steps')
+summary(sumStepsMod$steps)
+```
+Filling in the missing values slightly changes the values of the minimum, mean, and median of the number of steps.
 
 ## Are there differences in activity patterns between weekdays and weekends?
