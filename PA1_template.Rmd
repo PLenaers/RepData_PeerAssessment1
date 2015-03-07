@@ -3,11 +3,14 @@ title: "Reproducible Research: Peer Assessment 1"
 output: 
   html_document:
     keep_md: true
+    pandoc_args: ["+RTS", "-K64m", "-RTS"]
 ---
 
-
+      
 ## Loading and preprocessing the data
-
+```{r, echo=TRUE, results='hide'}
+read.csv("activity.csv")
+```
 
 
 ## What is mean total number of steps taken per day?
