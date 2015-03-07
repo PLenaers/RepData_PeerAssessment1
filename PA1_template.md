@@ -39,22 +39,22 @@ Then the average per day is calculated using the ddply function. The results are
 data$day <- factor(weekdays(as.Date(data$date)))
 data$day <- factor(data$day, levels= c("Sunday", "Monday", 
     "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
-avgByDay <- ddply(data, .(day, interval), summarise, steps = mean(steps, na.rm=TRUE))
-invisible(avgByDay[order(data$day), ])
-plot(avgByDay$steps, type='l', xlab='', ylab='Number of steps', xaxt="n")
-axis(1, at=c(0,288,576,864,1152,1440,1728,2016), labels=c(levels(avgByDay$day), ""))
+avgByInt <- ddply(data, .(interval), summarise, steps = mean(steps, na.rm=TRUE))
+invisible(avgByInt[order(data$day), ])
+plot(avgByInt$steps, type='l', xlab='Interval', ylab='Number of steps')
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
 
 ```r
-avgByDay[which.max(avgByDay$steps),]
+avgByInt[which.max(avgByInt$steps),]
 ```
 
 ```
-##         day interval    steps
-## 1547 Friday      850 328.5714
+##     interval    steps
+## 104      835 206.1698
 ```
+
 
 ## Imputing missing values
 The missing values are replaced by the mean of that particular interval.
@@ -71,12 +71,14 @@ sum(is.na(data$steps))
 ```r
 idx <- is.na(data$steps)
 modData <- data
+avgByDay <- ddply(data, .(day, interval), summarise, steps = mean(steps, na.rm=TRUE))
 for (i in 1:length(idx)) {
       if (idx[i]) {
             modData$steps[i] <- avgByDay$steps[which(avgByDay$day==data$day[i] & avgByDay$interval==data$interval[i])]
       }
 }
 ```
+
 Now, the same methods as before can be used to make a histogram and calculate the mean and median.
 
 
@@ -98,3 +100,19 @@ summary(sumStepsMod$steps)
 Filling in the missing values slightly changes the values of the minimum, mean, and median of the number of steps.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+First, a new factor variable is created to indicate if a day is a weekday or in the weekend.
+
+```r
+modData$weekend <- factor(modData$day %in% c("Saturday", "Sunday"))
+modData$weekend <- revalue(modData$weekend, c("FALSE"="weekday", "TRUE"="weekend"))
+```
+
+The mean of the steps is calculated and the plot is made.
+
+```r
+avgByWeekend <- ddply(modData, .(weekend, interval), summarise, steps = mean(steps))
+library(ggplot2)
+qplot(interval, steps, data=avgByWeekend, facets=weekend~., geom="line", xlab="Interval", ylab="Number of steps")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
