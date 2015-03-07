@@ -86,7 +86,7 @@ plot(avgByInt$steps, type='l', xlab='Interval', ylab='Number of steps')</code></
 </div>
 <div id="imputing-missing-values" class="section level2">
 <h2>Imputing missing values</h2>
-<p>The missing values are replaced by the mean of that particular interval.</p>
+<p>The missing values are replaced by the mean of that particular interval for the specific day.</p>
 <pre class="r"><code>sum(is.na(data$steps))</code></pre>
 <pre><code>## [1] 2304</code></pre>
 <pre class="r"><code>idx &lt;- is.na(data$steps)

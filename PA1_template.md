@@ -57,7 +57,7 @@ avgByInt[which.max(avgByInt$steps),]
 
 
 ## Imputing missing values
-The missing values are replaced by the mean of that particular interval.
+The missing values are replaced by the mean of that particular interval for the specific day.
 
 
 ```r
